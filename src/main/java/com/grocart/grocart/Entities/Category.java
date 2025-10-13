@@ -1,4 +1,5 @@
 package com.grocart.grocart.Entities;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -15,6 +16,7 @@ public class Category {
 
     // Optional: bidirectional mapping to products
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<Product> products;
 
     public Category() {}
