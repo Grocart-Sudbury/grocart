@@ -3,55 +3,57 @@ pipeline {
 
     environment {
         IMAGE_NAME = "grocart-app"
-        CONTAINER_NAME = "grocart_container"
-        APP_PORT = "9091"  // match the port your app exposes
+        CONTAINER_NAME = "grocart-app"
+        PORT = "9091"
+        REPO_URL = "https://github.com/Grocart-Sudbury/grocart.git"
+        WORK_DIR = "${WORKSPACE}/grocart"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/Grocart-Sudbury/grocart.git', branch: 'main'
-            }
-        }
-
-        stage('Build & Package') {
-            steps {
-                sh './mvnw clean package -DskipTests'
+                sh """
+                    if [ ! -d "$WORK_DIR" ]; then
+                        git clone $REPO_URL $WORK_DIR
+                    else
+                        cd $WORK_DIR
+                        git pull
+                    fi
+                """
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME} ."
-            }
-        }
-
-        stage('Stop & Remove old container (if exists)') {
-            steps {
-                script {
+                dir("${WORK_DIR}") {
                     sh """
-                    docker ps -q --filter "name=${CONTAINER_NAME}" | grep -q . && \
-                      docker stop ${CONTAINER_NAME} && \
-                      docker rm ${CONTAINER_NAME} || \
-                      echo "No existing container"
+                        # Stop and remove old container if exists
+                        docker stop $CONTAINER_NAME || true
+                        docker rm $CONTAINER_NAME || true
+
+                        # Build new Docker image
+                        docker build -t $IMAGE_NAME .
                     """
                 }
             }
         }
 
-        stage('Run Container') {
+        stage('Run Docker Container') {
             steps {
-                sh "docker run -d --name ${CONTAINER_NAME} -p ${APP_PORT}:${APP_PORT} ${IMAGE_NAME}"
+                sh """
+                    # Run new container
+                    docker run -d --name $CONTAINER_NAME -p $PORT:$PORT $IMAGE_NAME
+                """
             }
         }
     }
 
     post {
         success {
-            echo "✅ Grocart deployed successfully (port ${APP_PORT})"
+            echo "✅ Deployment successful! App running on port ${PORT}"
         }
         failure {
-            echo "❌ Deployment failed"
+            echo "❌ Deployment failed!"
         }
     }
 }
