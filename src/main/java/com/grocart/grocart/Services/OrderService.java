@@ -2,6 +2,8 @@ package com.grocart.grocart.Services;
 
 import com.grocart.grocart.DTO.OrderDTO;
 import com.grocart.grocart.DTO.OrderItemDTO;
+import com.grocart.grocart.DTO.OrderItemResponseDTO;
+import com.grocart.grocart.DTO.OrderResponseDTO;
 import com.grocart.grocart.Entities.Order;
 import com.grocart.grocart.Entities.OrderItem;
 import com.grocart.grocart.Entities.Product;
@@ -11,6 +13,9 @@ import com.grocart.grocart.Repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +29,35 @@ public class OrderService {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
     }
+    public List<OrderResponseDTO> getOrdersByDate(LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 
+        List<Order> orders = orderRepository.findByCreatedAtBetween(startOfDay, endOfDay);
+
+        return orders.stream().map(order -> new OrderResponseDTO(
+                order.getId(),
+                order.getFirstName(),
+                order.getLastName(),
+                order.getEmail(),
+                order.getPhone(),
+                order.getAddress(),
+                order.getCity(),
+                order.getProvince(),
+                order.getPostalCode(),
+                order.getSubtotal(),
+                order.getTax(),
+                order.getDiscount(),
+                order.getTotal(),
+                order.getStatus(),
+                order.getItems().stream().map(item -> new OrderItemResponseDTO(
+                        item.getId(),
+                        item.getQuantity(),
+                        item.getPriceAtPurchase(),
+                        item.getProduct().getProduct() // product name only
+                )).toList()
+        )).toList();
+    }
     @Transactional
     public Order createOrder(OrderDTO orderDTO) {
         Order order = new Order();
