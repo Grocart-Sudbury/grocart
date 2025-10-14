@@ -17,7 +17,7 @@ public class WebConfig {
                         .allowedOrigins(
                                 "http://localhost:3000",
                                 "http://10.0.0.37:4000",
-                              
+                                "https://admin.grocartinc.ca",
                                 "https://grocartinc.ca"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")

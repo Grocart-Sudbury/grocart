@@ -63,7 +63,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://10.0.0.37:4000",
-
+                "https://admin.grocartinc.ca",
                 "https://grocartinc.ca"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
