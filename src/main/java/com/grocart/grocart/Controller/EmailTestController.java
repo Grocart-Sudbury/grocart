@@ -28,25 +28,34 @@ public class EmailTestController {
     @GetMapping("/send-test-email")
     public String sendTestEmail(@RequestParam String to) throws PostmarkException, IOException {
 
+        // Create ApiClient
+        ApiClient client = Postmark.getApiClient("c535b170-745e-4cce-babb-c3456b31204f");
 
+        // Create HTML message
+        Message message = new Message(
+                "zeeza@grocartinc.ca",     // From (must be verified in Postmark)
+                to,                        // To
+                "Hello from Postmark!",    // Subject
+                null                       // Plain text body (optional)
+        );
 
-            // 2. Create ApiClient with base URL and headers
-            ApiClient client = Postmark.getApiClient("c535b170-745e-4cce-babb-c3456b31204f");
+        // Set HTML body
+        message.setHtmlBody("""
+        <html>
+            <body>
+                <h1 style="color:#4CAF50;">Welcome!</h1>
+                <p>This is a <b>test HTML email</b> sent using Postmark.</p>
+                <p>Thanks for trying this out 🚀</p>
+            </body>
+        </html>
+    """);
 
+        // Optionally, also include a fallback plain text body
+        message.setTextBody("This is the text fallback for clients that don't support HTML.");
 
+        // Send the message
+        MessageResponse response = client.deliverMessage(message);
 
-            // 4. Create message using constructor you specified
-            Message message = new Message(
-                    "zeeza@grocartinc.ca",       // Verified sender signature
-                    to,                    // Recipient email
-                    "Hello from Postmark!",// Subject
-                    "Hello message body"   // Plain text body
-            );
-
-            MessageResponse response = client.deliverMessage(message);
-
-            return "Email sent successfully: " + response.getMessage();
-
-
+        return "Email sent successfully: " + response.getMessage();
     }
 }

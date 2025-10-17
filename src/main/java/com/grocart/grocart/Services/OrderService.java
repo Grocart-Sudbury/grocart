@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class OrderService {
@@ -29,6 +30,7 @@ public class OrderService {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
     }
+
     public List<OrderResponseDTO> getOrdersByDate(LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
@@ -57,6 +59,9 @@ public class OrderService {
                         item.getProduct().getProduct() // product name only
                 )).toList()
         )).toList();
+    }
+    public Order findByTrackingId(String trackingId) {
+        return orderRepository.findByTrackingId(trackingId);
     }
     @Transactional
     public Order createOrder(OrderDTO orderDTO) {
@@ -87,7 +92,7 @@ public class OrderService {
             orderItems.add(orderItem);
             subtotal += product.getOfferPrice() * itemDTO.getQuantity();
         }
-
+        order.setTrackingId("TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         order.setItems(orderItems);
         order.setSubtotal(subtotal);
         order.setTax(subtotal * 0.13); // 13% tax

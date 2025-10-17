@@ -23,7 +23,8 @@ public class Order {
     private String city;
     private String province;
     private String postalCode;
-
+    // Tracking
+    private String trackingId;
     // Totals
     private Double subtotal;
     private Double tax;
@@ -51,6 +52,14 @@ public class Order {
 
     public Long getId() {
         return id;
+    }
+
+    public String getTrackingId() {
+        return trackingId;
+    }
+
+    public void setTrackingId(String trackingId) {
+        this.trackingId = trackingId;
     }
 
     public void setId(Long id) {
@@ -184,7 +193,6 @@ public class Order {
     public void setItems(List<OrderItem> items) {
         this.items = items;
     }
-// Getters and setters
-    // ...
+
 }
 

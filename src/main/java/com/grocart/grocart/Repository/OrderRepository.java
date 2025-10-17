@@ -11,5 +11,5 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     // You can add custom queries here if needed, e.g., find by status or customer email
     List<Order> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
-
+    Order findByTrackingId(String trackingId);
 }

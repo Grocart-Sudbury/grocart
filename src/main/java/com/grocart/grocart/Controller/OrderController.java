@@ -1,10 +1,15 @@
 package com.grocart.grocart.Controller;
 
 import com.grocart.grocart.DTO.OrderDTO;
+import com.grocart.grocart.DTO.OrderItemDTO;
 import com.grocart.grocart.DTO.OrderResponseDTO;
+import com.grocart.grocart.DTO.OrderTrackingDTO;
 import com.grocart.grocart.Entities.Order;
+import com.grocart.grocart.Services.EmailService;
 import com.grocart.grocart.Services.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +22,9 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @Autowired
+    private EmailService emailService;
+
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
@@ -24,6 +32,17 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody OrderDTO orderDTO) {
         Order order = orderService.createOrder(orderDTO);
+        // Send email
+        try {
+            emailService.sendTrackingEmail(
+                    order.getEmail(),
+                    order.getTrackingId(),
+                    order.getFirstName()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Failed to send tracking email");
+        }
         return ResponseEntity.ok(order);
     }
     @GetMapping("/by-date")
@@ -31,5 +50,27 @@ public class OrderController {
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<OrderResponseDTO> orders = orderService.getOrdersByDate(date);
         return ResponseEntity.ok(orders);
+    }
+    // ✅ Add tracking endpoint here
+    @GetMapping("/track/{trackingId}")
+    public ResponseEntity<OrderTrackingDTO> trackOrder(@PathVariable String trackingId) {
+        Order order = orderService.findByTrackingId(trackingId);
+        if (order == null) return ResponseEntity.notFound().build();
+
+        List<OrderItemDTO> items = order.getItems().stream().map(i -> {
+            OrderItemDTO dto = new OrderItemDTO();
+            dto.setProductId(i.getProduct().getId());
+            dto.setQuantity(i.getQuantity());
+
+            return dto;
+        }).toList();
+
+        OrderTrackingDTO dto = new OrderTrackingDTO();
+        dto.setTrackingId(order.getTrackingId());
+        dto.setStatus(order.getStatus());
+        dto.setTotal(order.getTotal());
+        dto.setItems(items);
+
+        return ResponseEntity.ok(dto);
     }
 }

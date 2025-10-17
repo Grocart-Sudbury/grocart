@@ -11,6 +11,7 @@ public class OrderDTO {
     private String phone;
     private String address;
     private String city;
+    private String trackingId;
     private String province;
     private String postalCode;
 
@@ -26,6 +27,14 @@ public class OrderDTO {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public String getTrackingId() {
+        return trackingId;
+    }
+
+    public void setTrackingId(String trackingId) {
+        this.trackingId = trackingId;
     }
 
     public String getLastName() {
