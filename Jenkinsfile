@@ -23,27 +23,29 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Deploy') {
             steps {
                 dir("${WORK_DIR}") {
-                    sh """
-                        # Stop and remove old container if exists
-                        docker stop $CONTAINER_NAME || true
-                        docker rm $CONTAINER_NAME || true
+                    withCredentials([
+                        string(credentialsId: 'db-password', variable: 'DB_PASSWORD'),
+                        string(credentialsId: 'postmark-api-key', variable: 'POSTMARK_API_KEY'),
+                        string(credentialsId: 'stripe-secret-key', variable: 'STRIPE_SECRET_KEY')
+                    ]) {
+                        sh """
+                            echo "🛠 Building Docker image..."
+                            docker stop $CONTAINER_NAME || true
+                            docker rm $CONTAINER_NAME || true
+                            docker build -t $IMAGE_NAME .
 
-                        # Build new Docker image
-                        docker build -t $IMAGE_NAME .
-                    """
+                            echo "🚀 Running Docker container..."
+                            docker run -d --name $CONTAINER_NAME \
+                                -e DB_PASSWORD=$DB_PASSWORD \
+                                -e POSTMARK_API_KEY=$POSTMARK_API_KEY \
+                                -e STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY \
+                                -p $PORT:$PORT $IMAGE_NAME
+                        """
+                    }
                 }
-            }
-        }
-
-        stage('Run Docker Container') {
-            steps {
-                sh """
-                    # Run new container
-                    docker run -d --name $CONTAINER_NAME -p $PORT:$PORT $IMAGE_NAME
-                """
             }
         }
     }

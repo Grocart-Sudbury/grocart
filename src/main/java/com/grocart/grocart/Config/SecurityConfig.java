@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/categories").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/orders/**").permitAll()
+                        .requestMatchers("/api/payment/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )
@@ -60,15 +61,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
+
+        // Use allowedOriginPatterns instead of allowedOrigins
+        configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "http://10.0.0.37:4000",
                 "https://admin.grocartinc.ca",
                 "https://grocartinc.ca"
         ));
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true); // credentials allowed
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
