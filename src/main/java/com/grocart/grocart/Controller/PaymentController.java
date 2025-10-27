@@ -67,8 +67,8 @@ public class PaymentController {
         SessionCreateParams params = SessionCreateParams.builder()
                 .addAllLineItem(lineItems)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:3000/payment-success")
-                .setCancelUrl("http://localhost:3000/payment-cancel")
+                .setSuccessUrl("https://grocartinc.ca/payment-success")
+                .setCancelUrl("https://grocartinc.ca/payment-failed")
                 .build();
 
         Session session = Session.create(params);
