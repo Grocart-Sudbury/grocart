@@ -1,5 +1,6 @@
 # Stage 1: Build the Spring Boot app
-FROM openjdk:17-jdk-slim as build
+FROM eclipse-temurin:17-jdk-jammy as build
+
 
 WORKDIR /workspace
 
