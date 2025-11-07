@@ -1,5 +1,7 @@
 package com.grocart.grocart.Controller;
 
+import com.grocart.grocart.Entities.CartItem;
+import com.grocart.grocart.Entities.ShippingInfo;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -12,31 +14,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/payment")
 public class PaymentController {
 
-    // DTOs for frontend payload
-    public record CartItem(
-            Long id,
-            String product,
-            Double originalPrice,
-            Double offerPrice,
-            String description,
-            Integer stock,
-            String quantity,      // can ignore
-            String imageUrl,
-            String category,
-            Integer quantityInCart
-    ) {}
 
-    public record ShippingInfo(
-            String firstName,
-            String lastName,
-            String email,
-            String phone,
-            String address,
-            String city,
-            String province,
-            String postalCode,
-            Double discount
-    ) {}
 
     public record PaymentRequest(List<CartItem> cart, ShippingInfo shipping) {}
 
@@ -50,15 +28,15 @@ public class PaymentController {
                         .setPriceData(
                                 SessionCreateParams.LineItem.PriceData.builder()
                                         .setCurrency("cad")
-                                        .setUnitAmount((long) (item.offerPrice() * 100)) // Stripe expects cents
+                                        .setUnitAmount((long) (item.getOfferPrice() * 100)) // Stripe expects cents
                                         .setProductData(
                                                 SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                        .setName(item.product()) // use product name
+                                                        .setName(item.getProduct()) // use product name
                                                         .build()
                                         )
                                         .build()
                         )
-                        .setQuantity(item.quantityInCart().longValue()) // use quantityInCart
+                        .setQuantity(item.getQuantityInCart().longValue()) // use quantityInCart
                         .build()
                 )
                 .collect(Collectors.toList());
