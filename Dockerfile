@@ -1,6 +1,5 @@
 # Stage 1: Build the Spring Boot app
-FROM eclipse-temurin:17-jdk-jammy as build
-
+FROM eclipse-temurin:17-jdk-jammy AS build
 
 WORKDIR /workspace
 
@@ -15,7 +14,7 @@ RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Runtime image
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-jammy
 
 WORKDIR /app
 
