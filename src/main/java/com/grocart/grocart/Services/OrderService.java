@@ -1,15 +1,14 @@
 package com.grocart.grocart.Services;
 
-import com.grocart.grocart.DTO.OrderDTO;
-import com.grocart.grocart.DTO.OrderItemDTO;
-import com.grocart.grocart.DTO.OrderItemResponseDTO;
-import com.grocart.grocart.DTO.OrderResponseDTO;
+import com.grocart.grocart.DTO.*;
 import com.grocart.grocart.Entities.Order;
 import com.grocart.grocart.Entities.OrderItem;
 import com.grocart.grocart.Entities.Product;
 
+import com.grocart.grocart.Repository.OrderItemRepository;
 import com.grocart.grocart.Repository.OrderRepository;
 import com.grocart.grocart.Repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +25,15 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
+    @Autowired
+    private OrderItemRepository orderItemRepository;
     public OrderService(OrderRepository orderRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
     }
-
+    public List<TopOrderedProductDTO> getTopOrderedProducts() {
+        return orderItemRepository.findTopOrderedProductsFull();
+    }
     public List<OrderResponseDTO> getOrdersByDate(LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);

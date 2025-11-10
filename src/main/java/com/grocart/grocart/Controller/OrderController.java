@@ -1,9 +1,6 @@
 package com.grocart.grocart.Controller;
 
-import com.grocart.grocart.DTO.OrderDTO;
-import com.grocart.grocart.DTO.OrderItemDTO;
-import com.grocart.grocart.DTO.OrderResponseDTO;
-import com.grocart.grocart.DTO.OrderTrackingDTO;
+import com.grocart.grocart.DTO.*;
 import com.grocart.grocart.Entities.Order;
 import com.grocart.grocart.Services.EmailService;
 import com.grocart.grocart.Services.OrderService;
@@ -44,6 +41,11 @@ public class OrderController {
             System.err.println("Failed to send tracking email");
         }
         return ResponseEntity.ok(order);
+    }
+    @GetMapping("/top-products")
+    public ResponseEntity<List<TopOrderedProductDTO>> getTopOrderedProducts() {
+        List<TopOrderedProductDTO> topProducts = orderService.getTopOrderedProducts();
+        return ResponseEntity.ok(topProducts);
     }
     @GetMapping("/by-date")
     public ResponseEntity<List<OrderResponseDTO>> getOrdersByDate(
