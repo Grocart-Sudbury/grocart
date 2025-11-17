@@ -8,30 +8,24 @@ public class CartItem {
     private Double offerPrice;
     private String description;
     private Integer stock;
-    private String quantity;        // can ignore
+
     private String imageUrl;
     private String category;
-    private Integer quantityInCart;
+    private Integer quantity;
 
-    public CartItem() {
-    }
 
-    public CartItem(Long id, String product, Double originalPrice, Double offerPrice,
-                    String description, Integer stock, String quantity,
-                    String imageUrl, String category, Integer quantityInCart) {
+
+    public CartItem(Long id, String product, Double originalPrice, Double offerPrice, String description, Integer stock, String imageUrl, String category, Integer quantity) {
         this.id = id;
         this.product = product;
         this.originalPrice = originalPrice;
         this.offerPrice = offerPrice;
         this.description = description;
         this.stock = stock;
-        this.quantity = quantity;
         this.imageUrl = imageUrl;
         this.category = category;
-        this.quantityInCart = quantityInCart;
+        this.quantity = quantity;
     }
-
-    // Getters & Setters
 
     public Long getId() {
         return id;
@@ -81,14 +75,6 @@ public class CartItem {
         this.stock = stock;
     }
 
-    public String getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(String quantity) {
-        this.quantity = quantity;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -105,11 +91,11 @@ public class CartItem {
         this.category = category;
     }
 
-    public Integer getQuantityInCart() {
-        return quantityInCart;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setQuantityInCart(Integer quantityInCart) {
-        this.quantityInCart = quantityInCart;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }

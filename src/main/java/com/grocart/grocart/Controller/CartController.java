@@ -16,7 +16,7 @@ public class CartController {
     public PriceBreakdown calculate(@RequestBody CartRequest request) {
 
         double subtotal = request.getCart().stream()
-                .mapToDouble(item -> item.getOfferPrice() * item.getQuantityInCart())
+                .mapToDouble(item -> item.getOfferPrice() * item.getQuantity())
                 .sum();
 
         double tax = subtotal * 0.13;

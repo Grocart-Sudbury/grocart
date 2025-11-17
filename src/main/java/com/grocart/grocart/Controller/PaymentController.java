@@ -36,7 +36,7 @@ public class PaymentController {
                                         )
                                         .build()
                         )
-                        .setQuantity(item.getQuantityInCart().longValue()) // use quantityInCart
+                        .setQuantity(item.getQuantity().longValue()) // use quantityInCart
                         .build()
                 )
                 .collect(Collectors.toList());
