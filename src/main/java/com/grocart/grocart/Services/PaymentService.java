@@ -47,13 +47,13 @@ public class PaymentService {
                 .collect(Collectors.toList());
 
         // Add additional line items for shipping, service fee, tax if needed
-        if (price.getShipping() > 0) {
+        if (price.getShippingCost() > 0) {
             lineItems.add(
                     SessionCreateParams.LineItem.builder()
                             .setPriceData(
                                     SessionCreateParams.LineItem.PriceData.builder()
                                             .setCurrency("cad")
-                                            .setUnitAmount((long) (price.getShipping() * 100))
+                                            .setUnitAmount((long) (price.getShippingCost() * 100))
                                             .setProductData(
                                                     SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                             .setName("Shipping Fee")
