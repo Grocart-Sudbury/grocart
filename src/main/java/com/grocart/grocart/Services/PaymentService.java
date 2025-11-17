@@ -84,7 +84,25 @@ public class PaymentService {
                             .build()
             );
         }
-
+        // Add tax as a separate line item
+        if (price.getTax() > 0) {
+            lineItems.add(
+                    SessionCreateParams.LineItem.builder()
+                            .setPriceData(
+                                    SessionCreateParams.LineItem.PriceData.builder()
+                                            .setCurrency("cad")
+                                            .setUnitAmount((long) (price.getTax() * 100))
+                                            .setProductData(
+                                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                            .setName("Tax")
+                                                            .build()
+                                            )
+                                            .build()
+                            )
+                            .setQuantity(1L)
+                            .build()
+            );
+        }
         // Create Stripe checkout session
         SessionCreateParams params = SessionCreateParams.builder()
                 .addAllLineItem(lineItems)
