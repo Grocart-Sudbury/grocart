@@ -31,11 +31,11 @@ public class OrderController {
         Order order = orderService.createOrder(orderDTO);
         // Send email
         try {
-            emailService.sendTrackingEmail(
-                    order.getEmail(),
-                    order.getTrackingId(),
-                    order.getFirstName()
-            );
+//            emailService.sendTrackingEmail(
+//                    order.getEmail(),
+//                    order.getTrackingId(),
+//                    order.getFirstName()
+//            );
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Failed to send tracking email");
