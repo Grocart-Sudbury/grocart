@@ -1,10 +1,11 @@
 package com.grocart.grocart.Services;
 
 import com.grocart.grocart.DTO.*;
+import com.grocart.grocart.Entities.Customer;
 import com.grocart.grocart.Entities.Order;
 import com.grocart.grocart.Entities.OrderItem;
 import com.grocart.grocart.Entities.Product;
-
+import com.grocart.grocart.Repository.CustomerRepository;
 import com.grocart.grocart.Repository.OrderItemRepository;
 import com.grocart.grocart.Repository.OrderRepository;
 import com.grocart.grocart.Repository.ProductRepository;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,16 +26,23 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
 
     @Autowired
     private OrderItemRepository orderItemRepository;
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository) {
+
+    public OrderService(OrderRepository orderRepository,
+                        ProductRepository productRepository,
+                        CustomerRepository customerRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.customerRepository = customerRepository;
     }
+
     public List<TopOrderedProductDTO> getTopOrderedProducts() {
         return orderItemRepository.findTopOrderedProductsFull();
     }
+
     public List<OrderResponseDTO> getOrdersByDate(LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
@@ -63,17 +72,32 @@ public class OrderService {
                 )).toList()
         )).toList();
     }
+
     public Order findByTrackingId(String trackingId) {
         return orderRepository.findByTrackingId(trackingId);
     }
+
     @Transactional
     public Order createOrder(OrderDTO orderDTO) {
+        // Check if customer exists
+        Customer customer = customerRepository.findByEmail(orderDTO.getEmail())
+                .orElseGet(() -> {
+                    Customer newCustomer = new Customer(
+                            orderDTO.getEmail(),
+                            orderDTO.getFirstName(),
+                            orderDTO.getLastName(),
+                            orderDTO.getPhone(),
+                            orderDTO.getAddress()
+                    );
+                    return customerRepository.save(newCustomer);
+                });
+
         Order order = new Order();
-        order.setFirstName(orderDTO.getFirstName());
-        order.setLastName(orderDTO.getLastName());
-        order.setEmail(orderDTO.getEmail());
-        order.setPhone(orderDTO.getPhone());
-        order.setAddress(orderDTO.getAddress());
+        order.setFirstName(customer.getFirstName());
+        order.setLastName(customer.getLastName());
+        order.setEmail(customer.getEmail());
+        order.setPhone(customer.getPhone());
+        order.setAddress(customer.getAddress());
         order.setCity(orderDTO.getCity());
         order.setProvince(orderDTO.getProvince());
         order.setPostalCode(orderDTO.getPostalCode());
@@ -95,6 +119,7 @@ public class OrderService {
             orderItems.add(orderItem);
             subtotal += product.getOfferPrice() * itemDTO.getQuantity();
         }
+
         order.setTrackingId("TRK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         order.setItems(orderItems);
         order.setSubtotal(subtotal);

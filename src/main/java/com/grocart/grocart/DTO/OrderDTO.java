@@ -29,6 +29,10 @@ public class OrderDTO {
         this.firstName = firstName;
     }
 
+    public OrderDTO(String trackingId) {
+        this.trackingId = trackingId;
+    }
+
     public String getTrackingId() {
         return trackingId;
     }
