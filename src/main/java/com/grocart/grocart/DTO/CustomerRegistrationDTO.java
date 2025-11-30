@@ -1,41 +1,32 @@
-package com.grocart.grocart.Entities;
+package com.grocart.grocart.DTO;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
-@Entity
-@Table(name = "customers")
-public class Customer {
+public class CustomerRegistrationDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
     private String email;
 
-    @Column(nullable = false)
-    private String password;
-
+    @NotBlank(message = "First name is required")
     private String firstName;
+
+    @NotBlank(message = "Last name is required")
     private String lastName;
+
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone should be 10 digits")
     private String phone;
+
     private String address;
 
     // Constructors
-    public Customer() {}
+    public CustomerRegistrationDTO() {}
 
-    public Customer( String email, String firstName, String lastName, String phone, String address) {
-
+    public CustomerRegistrationDTO(String email, String firstName, String lastName,
+                                   String phone, String address) {
         this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phone = phone;
-        this.address = address;
-    }
-
-    public Customer(String email, String password, String firstName, String lastName, String phone, String address) {
-        this.email = email;
-        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
@@ -43,13 +34,8 @@ public class Customer {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

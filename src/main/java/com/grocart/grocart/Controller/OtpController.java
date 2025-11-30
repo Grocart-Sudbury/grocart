@@ -16,26 +16,43 @@ public class OtpController {
     private final EmailService emailService;
 
     private final Map<String, OtpEntry> otpStorage = new ConcurrentHashMap<>();
-    private final Map<String, Integer> resendCount = new ConcurrentHashMap<>();
+    private final Map<String, ResendTracker> resendTrackers = new ConcurrentHashMap<>();
 
     private static final long OTP_EXPIRATION_MS = 5 * 60 * 1000; // 5 minutes
+    private static final long RESEND_RESET_MS = 5 * 60 * 1000; // 5 minutes - reset resend limit
     private static final int MAX_RESEND = 3;
 
-
     private final CustomerRepository customerRepository;
-
-
 
     public OtpController(EmailService emailService, CustomerRepository customerRepository) {
         this.emailService = emailService;
         this.customerRepository = customerRepository;
     }
+
     // ------------------- Send OTP -------------------
     @PostMapping("/send")
     public String sendOtp(@RequestParam String email) {
-        int count = resendCount.getOrDefault(email, 0);
-        if (count >= MAX_RESEND) {
-            return "You have reached the maximum number of OTP requests. Please try again later.";
+        long now = System.currentTimeMillis();
+
+        // Clean up expired resend tracker
+        ResendTracker tracker = resendTrackers.get(email);
+        if (tracker != null && now - tracker.firstAttemptTime > RESEND_RESET_MS) {
+            resendTrackers.remove(email);
+            tracker = null;
+        }
+
+        // Initialize or get existing tracker
+        if (tracker == null) {
+            tracker = new ResendTracker(now);
+            resendTrackers.put(email, tracker);
+        }
+
+        // Check if max resend limit reached
+        if (tracker.count >= MAX_RESEND) {
+            long timeRemaining = RESEND_RESET_MS - (now - tracker.firstAttemptTime);
+            long minutesRemaining = timeRemaining / (60 * 1000);
+            return "You have reached the maximum number of OTP requests. Please try again in "
+                    + minutesRemaining + " minute(s).";
         }
 
         String otp = String.valueOf(100000 + new Random().nextInt(900000));
@@ -43,8 +60,8 @@ public class OtpController {
         try {
             emailService.sendOtpEmail(email, otp);
 
-            otpStorage.put(email, new OtpEntry(otp, System.currentTimeMillis()));
-            resendCount.put(email, count + 1);
+            otpStorage.put(email, new OtpEntry(otp, now));
+            tracker.count++;
 
             return "OTP sent to " + email;
         } catch (Exception e) {
@@ -69,7 +86,7 @@ public class OtpController {
 
         if (entry.otp.equals(otp)) {
             otpStorage.remove(email);
-            resendCount.remove(email); // reset count after success
+            resendTrackers.remove(email); // reset count after success
 
             // ✅ Create customer if not exists
             customerRepository.findByEmail(email).orElseGet(() -> {
@@ -88,7 +105,7 @@ public class OtpController {
         }
     }
 
-    // ------------------- Internal class for OTP -------------------
+    // ------------------- Internal classes -------------------
     private static class OtpEntry {
         String otp;
         long timestamp;
@@ -96,6 +113,16 @@ public class OtpController {
         OtpEntry(String otp, long timestamp) {
             this.otp = otp;
             this.timestamp = timestamp;
+        }
+    }
+
+    private static class ResendTracker {
+        int count;
+        long firstAttemptTime;
+
+        ResendTracker(long firstAttemptTime) {
+            this.count = 0;
+            this.firstAttemptTime = firstAttemptTime;
         }
     }
 }
