@@ -1,6 +1,5 @@
 package com.grocart.grocart.Services;
 
-
 import com.grocart.grocart.DTO.OrderResponseDTO;
 import com.grocart.grocart.DTO.OrderResponseStatusDTO;
 import com.grocart.grocart.Entities.Order;
@@ -26,7 +25,7 @@ public class OrderStatusService {
 
         // Validate status
         if (!isValidStatus(newStatus)) {
-            throw new IllegalArgumentException("Invalid status: " + newStatus + ". Valid statuses are: Pending, OutForDelivery, Completed");
+            throw new IllegalArgumentException("Invalid status: " + newStatus + ". Valid statuses are: Pending, Approved, OutForDelivery, Completed");
         }
 
         // Validate status transition
@@ -44,25 +43,34 @@ public class OrderStatusService {
      */
     private boolean isValidStatus(String status) {
         return status.equals("Pending") ||
+                status.equals("Approved") ||
                 status.equals("OutForDelivery") ||
                 status.equals("Completed");
     }
 
     /**
      * Validate status transition logic
-     * Pending -> OutForDelivery -> Completed
+     * Pending -> Approved -> OutForDelivery -> Completed
      */
     private void validateStatusTransition(String currentStatus, String newStatus) {
         if (currentStatus.equals("Completed")) {
             throw new IllegalStateException("Cannot change status of a completed order");
         }
 
-        if (currentStatus.equals("Pending") && newStatus.equals("Completed")) {
+        if (currentStatus.equals("Pending") && (newStatus.equals("OutForDelivery") || newStatus.equals("Completed"))) {
+            throw new IllegalStateException("Order must be 'Approved' before it can be '" + newStatus + "'");
+        }
+
+        if (currentStatus.equals("Approved") && newStatus.equals("Pending")) {
+            throw new IllegalStateException("Cannot move order back to 'Pending' from 'Approved'");
+        }
+
+        if (currentStatus.equals("Approved") && newStatus.equals("Completed")) {
             throw new IllegalStateException("Order must be 'OutForDelivery' before it can be 'Completed'");
         }
 
-        if (currentStatus.equals("OutForDelivery") && newStatus.equals("Pending")) {
-            throw new IllegalStateException("Cannot move order back to 'Pending' from 'OutForDelivery'");
+        if (currentStatus.equals("OutForDelivery") && (newStatus.equals("Pending") || newStatus.equals("Approved"))) {
+            throw new IllegalStateException("Cannot move order back to '" + newStatus + "' from 'OutForDelivery'");
         }
     }
 }

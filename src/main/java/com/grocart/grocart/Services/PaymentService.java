@@ -19,8 +19,10 @@ public class PaymentService {
 
     private final CartService cartService;
 
+
     public PaymentService(CartService cartService) {
         this.cartService = cartService;
+
     }
 
     public Session createCheckoutSession(PaymentRequest request) throws StripeException {
@@ -103,6 +105,7 @@ public class PaymentService {
                             .build()
             );
         }
+
         // Create Stripe checkout session
         SessionCreateParams params = SessionCreateParams.builder()
                 .addAllLineItem(lineItems)

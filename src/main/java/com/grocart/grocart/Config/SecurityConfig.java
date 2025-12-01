@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/otp/**").permitAll()
                         .requestMatchers("/api/register/**").permitAll()
                         .requestMatchers("/api/orderstatus/**").permitAll()
+                        .requestMatchers("/api/email/**").permitAll()
                         .requestMatchers("/api/login/**").permitAll()
                         .requestMatchers("/api/customer/**").permitAll()
                         .requestMatchers("/api/**").authenticated()

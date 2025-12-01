@@ -28,17 +28,18 @@ public class EmailService {
         String subject = "Your Order Tracking Information";
 
         String htmlBody = """
-            <html>
-                <body>
-                    <h2 style="color:#4CAF50;">Hi %s,</h2>
-                    <p>Your order has been placed successfully!</p>
-                    <p><b>Tracking ID:</b> %s</p>
-                    <p>You can use this ID to track your shipment.</p>
-                    <br/>
-                    <p>Thank you for shopping with us! 😊</p>
-                </body>
-            </html>
-        """.formatted(firstName, trackingId);
+        <html>
+            <body>
+                <h2 style="color:#4CAF50;">Hi %s,</h2>
+                <p>Your order has been placed successfully!</p>
+                <p><b>Tracking ID:</b> %s</p>
+                <p>You can use this ID to track your shipment.</p>
+                <p><a href="https://grocartinc.ca/track" style="display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:5px;">Track Your Order</a></p>
+                <br/>
+                <p>Thank you for shopping with us! 😊</p>
+            </body>
+        </html>
+    """.formatted(firstName, trackingId);
 
         Message message = new Message(
                 "zeeza@grocartinc.ca",
@@ -48,7 +49,7 @@ public class EmailService {
         );
 
         message.setHtmlBody(htmlBody);
-        message.setTextBody("Your tracking ID is: " + trackingId);
+        message.setTextBody("Your tracking ID is: " + trackingId + "\n\nTrack your order: https://grocartinc.ca/track");
 
         MessageResponse response = client.deliverMessage(message);
 
